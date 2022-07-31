@@ -1,6 +1,7 @@
 from typing import List, Union
 
 from latch import workflow
+from latch.resources.launch_plan import LaunchPlan
 from latch.types import LatchDir, LatchFile
 
 from .docs import MAGGIE_DOCS
@@ -157,3 +158,25 @@ def maggie(
         fargene_results,
         gecco_results,
     ]
+
+
+LaunchPlan(
+    maggie,  # workflow name
+    "Example Metagenome (Crohn's disease gut microbiome)",  # name of test data
+    {
+        "read1": LatchFile("latch:///Crohn/SRR579292_1.fastq"),
+        "read2": LatchFile("latch:///Crohn/SRR579292_2.fastq"),
+        "kaiju_ref_db": LatchFile("latch:///kaiju_idx/kaiju_db_viruses.fmi"),
+        "kaiju_ref_nodes": LatchFile("latch:///kaiju_idx/nodes.dmp"),
+        "kaiju_ref_names": LatchFile("latch:///kaiju_idx/names.dmp"),
+        "sample_name": "crohn_data1",
+        "taxon_rank": TaxonRank.species,
+        "min_count": "2",
+        "k_min": "21",
+        "k_max": "141",
+        "k_step": "12",
+        "min_contig_len": "200",
+        "prodigal_output_format": ProdigalOutput.gff,
+        "fargene_hmm_model": fARGeneModel.class_b_1_2,
+    },
+)
