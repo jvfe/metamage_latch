@@ -1,0 +1,32 @@
+import subprocess
+from pathlib import Path
+
+from latch import small_task
+from latch.types import LatchDir
+
+
+@small_task
+def gecco(assembly_dir: LatchDir, sample_name: str) -> LatchDir:
+
+    # Assembly data
+    assembly_name = f"{sample_name}.contigs.fa"
+    assembly_fasta = Path(assembly_dir.local_path, assembly_name)
+
+    output_dir_name = "gecco_results"
+    outdir = Path(output_dir_name).resolve()
+
+    _gecco_cmd = [
+        "gecco",
+        "run",
+        "-g",
+        str(assembly_fasta),
+        "-o",
+        output_dir_name,
+        "-j",
+        "4",
+        "--force-tsv",
+    ]
+
+    subprocess.run(_gecco_cmd)
+
+    return LatchDir(str(outdir), f"latch:///maggie/{sample_name}/{output_dir_name}")

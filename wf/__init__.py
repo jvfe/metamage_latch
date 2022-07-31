@@ -4,6 +4,10 @@ from latch import workflow
 from latch.types import LatchDir, LatchFile
 
 from .docs import MAGGIE_DOCS
+from .functional.amp import macrel
+from .functional.arg import fargene
+from .functional.bgc import gecco
+from .functional.prodigal import prodigal
 from .kaiju import (
     kaiju2krona_task,
     kaiju2table_task,
@@ -11,8 +15,7 @@ from .kaiju import (
     taxonomy_classification_task,
 )
 from .metassembly import megahit, metabat2, metaquast
-from .prodigal import prodigal
-from .types import ProdigalOutput, TaxonRank
+from .types import ProdigalOutput, TaxonRank, fARGeneModel
 
 
 @workflow(MAGGIE_DOCS)
@@ -30,8 +33,9 @@ def maggie(
     k_step: str = "12",
     min_contig_len: str = "200",
     prodigal_output_format: ProdigalOutput = ProdigalOutput.gbk,
+    fargene_hmm_model: fARGeneModel = fARGeneModel.class_a,
 ) -> List[Union[LatchFile, LatchDir]]:
-    """Metagenomic pre-processing, assembly, binning and annotation
+    """Metagenomic pre-processing, assembly, annotation and binning
 
     maggie
     ----------
@@ -41,46 +45,25 @@ def maggie(
 
     - fastp for read trimming and other general pre-processing
     - BowTie2 for mapping to the host genome and extracting unaligned reads
-    - MEGAHIT for assembly
-    - MetaQuast for assembly evaluation
-    - MetaBAT2 for binning
 
-    - Kaiju for taxonomic classification
+    - [MEGAHIT](https://github.com/voutcn/megahit) for assembly
+    - [MetaQuast](https://github.com/ablab/quast) for assembly evaluation
+    - [Macrel](https://github.com/BigDataBiology/macrel) for predicting Antimicrobial Peptide
+      (AMP)-like sequences from assembly_dir
+    - [fARGene](https://github.com/fannyhb/fargene) for identifying Antimicrobial Resistance Genes
+      (ARGs) from assembly_dir
+    - [Gecco](https://github.com/zellerlab/GECCO) for predicting biosynthetic gene clusters
+      (BCGs) from assembly_dir
+    - [Prodigal](https://github.com/hyattpd/Prodigal) for protein-coding
+      gene prediction from assembly_dir.
 
-    - Prodigal for protein-coding gene prediction on assembly data.
+    - [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/) for
+      binning
 
-    In the next sections, you can read brief descriptions of
-    all subworkflows contained within maggie.
-
-    ---
-
-    ## MetAssembly
-
-    MetAssembly is a workflow for assembly of metagenomics data.
-    It provides as end results both the assembled contigs, binned contigs
-    evaluation reports of said assembly.
-
-    MetAssembly is a workflow composed of:
-    - [MEGAHIT](https://github.com/voutcn/megahit) for assembly of input reads
-    - [Quast](https://github.com/ablab/quast), specifically MetaQuast, for assembly evaluation.
-    - [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/) for binning of assemblies
-
-    ---
-
-    ## Taxonomic classification with Kaiju
-
-    Kaiju performs taxonomic classification of
-    whole-genome sequencing metagenomics reads.
-    Reads are assigned to taxa by using a reference database
-    of protein sequences.
-    Read more about it [here](https://github.com/bioinformatics-centre/kaiju)
-
-    ---
-
-    ## Prodigal
-
-    Prodigal is a protein-coding gene predictor for prokaryotic genomes.
-    Read more about it [here](https://github.com/hyattpd/Prodigal).
+    - [Kaiju](https://github.com/bioinformatics-centre/kaiju) for
+      taxonomic classification
+    - [KronaTools](https://github.com/marbl/Krona/wiki/KronaTools) for
+      visualizing taxonomic classification results
 
     ---
 
@@ -103,6 +86,20 @@ def maggie(
     Hyatt, D., Chen, GL., LoCascio, P.F. et al. Prodigal: prokaryotic gene recognition
     and translation initiation site identification.
     BMC Bioinformatics 11, 119 (2010). https://doi.org/10.1186/1471-2105-11-119
+
+    Santos-Júnior CD, Pan S, Zhao X, Coelho LP. 2020.
+    Macrel: antimicrobial peptide screening in genomes and metagenomes.
+    PeerJ 8:e10555. DOI: 10.7717/peerj.10555
+
+    Berglund, F., Österlund, T., Boulund, F., Marathe, N. P.,
+    Larsson, D. J., & Kristiansson, E. (2019).
+    Identification and reconstruction of novel antibiotic resistance genes
+    from metagenomes. Microbiome, 7(1), 52.
+
+    Accurate de novo identification of biosynthetic gene clusters with GECCO.
+    Laura M Carroll, Martin Larralde, Jonas Simon Fleck, Ruby Ponnudurai,
+    Alessio Milanese, Elisa Cappio Barazzone, Georg Zeller.
+    bioRxiv 2021.05.03.442509; doi:10.1101/2021.05.03.442509
     """
     kaiju_out = taxonomy_classification_task(
         read1=read1,
@@ -139,15 +136,24 @@ def maggie(
     metassembly_results = metaquast(assembly_dir=assembly_dir, sample_name=sample_name)
     binning_results = metabat2(assembly_dir=assembly_dir, sample_name=sample_name)
 
-    annotation = prodigal(
+    prodigal_results = prodigal(
         assembly_dir=assembly_dir,
         sample_name=sample_name,
         output_format=prodigal_output_format,
     )
+    macrel_results = macrel(assembly_dir=assembly_dir, sample_name=sample_name)
+    fargene_results = fargene(
+        assembly_dir=assembly_dir, sample_name=sample_name, hmm_model=fargene_hmm_model
+    )
+    gecco_results = gecco(assembly_dir=assembly_dir, sample_name=sample_name)
+
     return [
         kaiju2table_out,
         krona_plot,
         metassembly_results,
         binning_results,
-        annotation,
+        prodigal_results,
+        macrel_results,
+        fargene_results,
+        gecco_results,
     ]

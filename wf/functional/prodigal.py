@@ -8,7 +8,7 @@ from pathlib import Path
 from latch import large_task
 from latch.types import LatchDir
 
-from .types import ProdigalOutput
+from ..types import ProdigalOutput
 
 
 @large_task
@@ -48,6 +48,4 @@ def prodigal(
 
     subprocess.run(_prodigal_cmd)
 
-    return LatchDir(
-        str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}"
-    )
+    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
