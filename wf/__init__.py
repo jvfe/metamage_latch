@@ -44,22 +44,33 @@ def maggie(
     maggie is a workflow for taxonomic classification, assembly, binning
     and annotation of long-read metagenomics datasets. It's composed of:
 
+    ## Read pre-processing and host read removal
+
     - fastp for read trimming and other general pre-processing
     - BowTie2 for mapping to the host genome and extracting unaligned reads
 
+    ## Assembly
+
     - [MEGAHIT](https://github.com/voutcn/megahit) for assembly
     - [MetaQuast](https://github.com/ablab/quast) for assembly evaluation
+
+    ## Functional annotation
+
     - [Macrel](https://github.com/BigDataBiology/macrel) for predicting Antimicrobial Peptide
-      (AMP)-like sequences from assembly_dir
+      (AMP)-like sequences from contigs
     - [fARGene](https://github.com/fannyhb/fargene) for identifying Antimicrobial Resistance Genes
-      (ARGs) from assembly_dir
+      (ARGs) from contigs
     - [Gecco](https://github.com/zellerlab/GECCO) for predicting biosynthetic gene clusters
-      (BCGs) from assembly_dir
+      (BCGs) from contigs
     - [Prodigal](https://github.com/hyattpd/Prodigal) for protein-coding
-      gene prediction from assembly_dir.
+      gene prediction from contigs.
+
+    ## Binning
 
     - [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/) for
       binning
+
+    ## Taxonomic classification of reads
 
     - [Kaiju](https://github.com/bioinformatics-centre/kaiju) for
       taxonomic classification
