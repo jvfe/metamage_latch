@@ -6,13 +6,12 @@ import subprocess
 from pathlib import Path
 
 from latch import large_task, small_task
-from latch.types import LatchDir, LatchFile
+from latch.types import LatchDir
 
 
 @large_task
 def megahit(
-    read_1: LatchFile,
-    read_2: LatchFile,
+    read_dir: LatchDir,
     sample_name: str,
     min_count: str,
     k_min: str,
@@ -20,8 +19,14 @@ def megahit(
     k_step: str,
     min_contig_len: str,
 ) -> LatchDir:
+
+    # Read files
+    read1 = Path(read_dir.local_path, f"{sample_name}_unaligned.fastq.1.gz")
+    read2 = Path(read_dir.local_path, f"{sample_name}_unaligned.fastq.2.gz")
+
     output_dir_name = "MEGAHIT"
     output_dir = Path(output_dir_name).resolve()
+
     _megahit_cmd = [
         "/root/megahit",
         "--min-count",
@@ -39,16 +44,14 @@ def megahit(
         "--min-contig-len",
         min_contig_len,
         "-1",
-        read_1.local_path,
+        str(read1),
         "-2",
-        read_2.local_path,
+        str(read2),
     ]
 
     subprocess.run(_megahit_cmd)
 
-    return LatchDir(
-        str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}"
-    )
+    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
 
 
 @small_task
@@ -78,9 +81,7 @@ def metaquast(
 
     subprocess.run(_metaquast_cmd)
 
-    return LatchDir(
-        str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}"
-    )
+    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
 
 
 @large_task

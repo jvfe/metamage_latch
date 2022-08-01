@@ -25,6 +25,15 @@ MAGGIE_DOCS.parameters = {
         display_name="Sample name",
         description="Sample name (will define output file names)",
     ),
+    "host_genome": LatchParameter(
+        display_name="Host Genome",
+        description="FASTA file of the host genome",
+        section_title="Host data",
+    ),
+    "host_name": LatchParameter(
+        display_name="Host name",
+        description="Name of the host",
+    ),
     "k_min": LatchParameter(
         display_name="Minimum kmer size",
         description="Must be odd and <=255",

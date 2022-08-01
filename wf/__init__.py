@@ -9,6 +9,7 @@ from .functional.amp import macrel
 from .functional.arg import fargene
 from .functional.bgc import gecco
 from .functional.prodigal import prodigal
+from .host_removal import build_bowtie_index, fastp, map_to_host
 from .kaiju import (
     kaiju2krona_task,
     kaiju2table_task,
@@ -23,9 +24,11 @@ from .types import ProdigalOutput, TaxonRank, fARGeneModel
 def maggie(
     read1: LatchFile,
     read2: LatchFile,
+    host_genome: LatchFile,
     kaiju_ref_db: LatchFile,
     kaiju_ref_nodes: LatchFile,
     kaiju_ref_names: LatchFile,
+    host_name: str = "host",
     sample_name: str = "maggie_sample",
     taxon_rank: TaxonRank = TaxonRank.species,
     min_count: str = "2",
@@ -42,12 +45,15 @@ def maggie(
     ----------
 
     maggie is a workflow for taxonomic classification, assembly, binning
-    and annotation of long-read metagenomics datasets. It's composed of:
+    and annotation of long-read host-associated metagenomics datasets.
+    It's composed of:
 
     ## Read pre-processing and host read removal
 
-    - fastp for read trimming and other general pre-processing
-    - BowTie2 for mapping to the host genome and extracting unaligned reads
+    - [fastp](https://github.com/OpenGene/fastp) for read trimming
+      and other general pre-processing
+    - [BowTie2](https://github.com/BenLangmead/bowtie2) for mapping
+      to the host genome and extracting unaligned reads
 
     ## Assembly
 
@@ -112,10 +118,31 @@ def maggie(
     Laura M Carroll, Martin Larralde, Jonas Simon Fleck, Ruby Ponnudurai,
     Alessio Milanese, Elisa Cappio Barazzone, Georg Zeller.
     bioRxiv 2021.05.03.442509; doi:10.1101/2021.05.03.442509
+
+    Shifu Chen, Yanqing Zhou, Yaru Chen, Jia Gu;
+    fastp: an ultra-fast all-in-one FASTQ preprocessor,
+    Bioinformatics, Volume 34, Issue 17, 1 September 2018,
+    Pages i884–i890, https://doi.org/10.1093/bioinformatics/bty560
+
+    Langmead B, Wilks C., Antonescu V., Charles R. Scaling read
+    aligners to hundreds of threads on general-purpose processors.
+    Bioinformatics. bty648.
     """
+
+    trimmed_data = fastp(read1=read1, read2=read2, sample_name=sample_name)
+    host_idx = build_bowtie_index(
+        host_genome=host_genome, sample_name=sample_name, host_name=host_name
+    )
+
+    unaligned = map_to_host(
+        host_idx=host_idx,
+        read_dir=trimmed_data,
+        sample_name=sample_name,
+        host_name=host_name,
+    )
+
     kaiju_out = taxonomy_classification_task(
-        read1=read1,
-        read2=read2,
+        read_dir=unaligned,
         kaiju_ref_db=kaiju_ref_db,
         kaiju_ref_nodes=kaiju_ref_nodes,
         sample=sample_name,
@@ -136,8 +163,7 @@ def maggie(
     krona_plot = plot_krona_task(krona_txt=kaiju2krona_out, sample=sample_name)
 
     assembly_dir = megahit(
-        read_1=read1,
-        read_2=read2,
+        read_dir=unaligned,
         sample_name=sample_name,
         min_count=min_count,
         k_min=k_min,
@@ -177,6 +203,8 @@ LaunchPlan(
     {
         "read1": LatchFile("latch:///Crohn/SRR579292_1.fastq"),
         "read2": LatchFile("latch:///Crohn/SRR579292_2.fastq"),
+        "host_genome": LatchFile("latch:///ref_genome/Homo_sapiens.fa.gz"),
+        "host_name": "homo_sapiens",
         "kaiju_ref_db": LatchFile("latch:///kaiju_idx/kaiju_db_viruses.fmi"),
         "kaiju_ref_nodes": LatchFile("latch:///kaiju_idx/nodes.dmp"),
         "kaiju_ref_names": LatchFile("latch:///kaiju_idx/names.dmp"),

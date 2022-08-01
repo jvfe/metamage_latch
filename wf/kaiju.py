@@ -6,20 +6,23 @@ import subprocess
 from pathlib import Path
 
 from latch import large_task, small_task
-from latch.types import LatchFile
+from latch.types import LatchDir, LatchFile
 
 from .types import TaxonRank
 
 
 @large_task
 def taxonomy_classification_task(
-    read1: LatchFile,
-    read2: LatchFile,
+    read_dir: LatchDir,
     kaiju_ref_nodes: LatchFile,
     kaiju_ref_db: LatchFile,
     sample: str,
 ) -> LatchFile:
     """Classify metagenomic reads with Kaiju"""
+
+    # Read files
+    read1 = Path(read_dir.local_path, f"{sample}_unaligned.fastq.1.gz")
+    read2 = Path(read_dir.local_path, f"{sample}_unaligned.fastq.2.gz")
 
     output_name = f"{sample}_kaiju.out"
     kaiju_out = Path(output_name).resolve()
@@ -31,9 +34,9 @@ def taxonomy_classification_task(
         "-f",
         kaiju_ref_db.local_path,
         "-i",
-        read1.local_path,
+        str(read1),
         "-j",
-        read2.local_path,
+        str(read2),
         "-z",
         "2",
         "-o",
@@ -42,9 +45,7 @@ def taxonomy_classification_task(
 
     subprocess.run(_kaiju_cmd)
 
-    return LatchFile(
-        str(kaiju_out), f"latch:///maggie/{sample}/kaiju/{output_name}"
-    )
+    return LatchFile(str(kaiju_out), f"latch:///maggie/{sample}/kaiju/{output_name}")
 
 
 @small_task
@@ -108,9 +109,7 @@ def kaiju2krona_task(
 
     subprocess.run(_kaiju2krona_cmd)
 
-    return LatchFile(
-        str(krona_txt), f"latch:///maggie/{sample}/kaiju/{output_name}"
-    )
+    return LatchFile(str(krona_txt), f"latch:///maggie/{sample}/kaiju/{output_name}")
 
 
 @small_task
@@ -123,6 +122,4 @@ def plot_krona_task(krona_txt: LatchFile, sample: str) -> LatchFile:
 
     subprocess.run(_kaiju2krona_cmd)
 
-    return LatchFile(
-        str(krona_html), f"latch:///maggie/{sample}/kaiju/{output_name}"
-    )
+    return LatchFile(str(krona_html), f"latch:///maggie/{sample}/kaiju/{output_name}")
