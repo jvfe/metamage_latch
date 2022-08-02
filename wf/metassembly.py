@@ -82,29 +82,3 @@ def metaquast(
     subprocess.run(_metaquast_cmd)
 
     return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
-
-
-@large_task
-def metabat2(
-    assembly_dir: LatchDir,
-    sample_name: str,
-) -> LatchDir:
-
-    assembly_name = f"{sample_name}.contigs.fa"
-    assembly_fasta = Path(assembly_dir.local_path, assembly_name)
-
-    output_dir_name = f"METABAT/{sample_name}"
-    output_dir = Path(output_dir_name).parent.resolve()
-
-    _metabat_cmd = [
-        "metabat2",
-        "--saveCls",
-        "-i",
-        str(assembly_fasta),
-        "-o",
-        output_dir_name,
-    ]
-
-    subprocess.run(_metabat_cmd)
-
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/METABAT/")

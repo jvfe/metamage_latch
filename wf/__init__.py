@@ -4,6 +4,12 @@ from latch import workflow
 from latch.resources.launch_plan import LaunchPlan
 from latch.types import LatchDir, LatchFile
 
+from .binning import (
+    bowtie_assembly_align,
+    bowtie_assembly_build,
+    metabat2,
+    summarize_contig_depths,
+)
 from .docs import MAGGIE_DOCS
 from .functional.amp import macrel
 from .functional.arg import fargene
@@ -16,7 +22,7 @@ from .kaiju import (
     plot_krona_task,
     taxonomy_classification_task,
 )
-from .metassembly import megahit, metabat2, metaquast
+from .metassembly import megahit, metaquast
 from .types import ProdigalOutput, TaxonRank, fARGeneModel
 
 
@@ -73,6 +79,8 @@ def maggie(
 
     ## Binning
 
+    - BowTie2 and [Samtools](https://github.com/samtools/samtools) to
+      building depth files for binning.
     - [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/) for
       binning
 
@@ -127,9 +135,18 @@ def maggie(
     Langmead B, Wilks C., Antonescu V., Charles R. Scaling read
     aligners to hundreds of threads on general-purpose processors.
     Bioinformatics. bty648.
-    """
 
+    Twelve years of SAMtools and BCFtools
+    Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall,
+    Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy,
+    Robert M Davies, Heng Li
+    GigaScience, Volume 10, Issue 2, February 2021, giab008,
+    https://doi.org/10.1093/gigascience/giab008
+    """
+    # Preprocessing
     trimmed_data = fastp(read1=read1, read2=read2, sample_name=sample_name)
+
+    # Host read removal
     host_idx = build_bowtie_index(
         host_genome=host_genome, sample_name=sample_name, host_name=host_name
     )
@@ -141,6 +158,7 @@ def maggie(
         host_name=host_name,
     )
 
+    # Kaiju taxonomic classification
     kaiju_out = taxonomy_classification_task(
         read_dir=unaligned,
         kaiju_ref_db=kaiju_ref_db,
@@ -162,6 +180,7 @@ def maggie(
     )
     krona_plot = plot_krona_task(krona_txt=kaiju2krona_out, sample=sample_name)
 
+    # Assembly
     assembly_dir = megahit(
         read_dir=unaligned,
         sample_name=sample_name,
@@ -172,8 +191,24 @@ def maggie(
         min_contig_len=min_contig_len,
     )
     metassembly_results = metaquast(assembly_dir=assembly_dir, sample_name=sample_name)
-    binning_results = metabat2(assembly_dir=assembly_dir, sample_name=sample_name)
 
+    # Binning preparation
+    built_assembly_idx = bowtie_assembly_build(
+        assembly_dir=assembly_dir, sample_name=sample_name
+    )
+    aligned_to_assembly = bowtie_assembly_align(
+        assembly_idx=built_assembly_idx, read_dir=unaligned, sample_name=sample_name
+    )
+    depth_file = summarize_contig_depths(
+        assembly_bam=aligned_to_assembly, sample_name=sample_name
+    )
+
+    # Binning
+    binning_results = metabat2(
+        assembly_dir=assembly_dir, depth_file=depth_file, sample_name=sample_name
+    )
+
+    # Functional annotation
     prodigal_results = prodigal(
         assembly_dir=assembly_dir,
         sample_name=sample_name,
