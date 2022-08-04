@@ -1,7 +1,7 @@
 # metamage
 
 metamage is a workflow for taxonomic classification, assembly, binning
-and annotation of long-read metagenomics datasets. It's composed of:
+and annotation of short-read metagenomics datasets. It's composed of:
 
 - MEGAHIT for assembly
 - MetaQuast for assembly evaluation
