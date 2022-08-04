@@ -7,10 +7,12 @@ from latch.types import LatchDir, LatchFile
 from .binning import (
     bowtie_assembly_align,
     bowtie_assembly_build,
+    convert_to_bam,
     metabat2,
+    sort_bam,
     summarize_contig_depths,
 )
-from .docs import MAGGIE_DOCS
+from .docs import metamage_DOCS
 from .functional.amp import macrel
 from .functional.arg import fargene
 from .functional.bgc import gecco
@@ -26,8 +28,8 @@ from .metassembly import megahit, metaquast
 from .types import ProdigalOutput, TaxonRank, fARGeneModel
 
 
-@workflow(MAGGIE_DOCS)
-def maggie(
+@workflow(metamage_DOCS)
+def metamage(
     read1: LatchFile,
     read2: LatchFile,
     host_genome: LatchFile,
@@ -35,7 +37,7 @@ def maggie(
     kaiju_ref_nodes: LatchFile,
     kaiju_ref_names: LatchFile,
     host_name: str = "host",
-    sample_name: str = "maggie_sample",
+    sample_name: str = "metamage_sample",
     taxon_rank: TaxonRank = TaxonRank.species,
     min_count: str = "2",
     k_min: str = "21",
@@ -47,10 +49,10 @@ def maggie(
 ) -> List[Union[LatchFile, LatchDir]]:
     """Metagenomic pre-processing, assembly, annotation and binning
 
-    maggie
+    metamage
     ----------
 
-    maggie is a workflow for taxonomic classification, assembly, binning
+    metamage is a workflow for taxonomic classification, assembly, binning
     and annotation of long-read host-associated metagenomics datasets.
     It's composed of:
 
@@ -90,6 +92,15 @@ def maggie(
       taxonomic classification
     - [KronaTools](https://github.com/marbl/Krona/wiki/KronaTools) for
       visualizing taxonomic classification results
+
+    ## Where to get the data?
+
+    - Kaiju indexes can be generated based on a reference database but
+      you can also find some pre-built ones in the sidebar of the
+      [Kaiju website](https://kaiju.binf.ku.dk/server).
+
+    - Reference host genomes can be acquired from a variety of databases,
+      for example [Ensembl](https://www.ensembl.org/index.html).
 
     ---
 
@@ -199,8 +210,12 @@ def maggie(
     aligned_to_assembly = bowtie_assembly_align(
         assembly_idx=built_assembly_idx, read_dir=unaligned, sample_name=sample_name
     )
+    aligned_bam = convert_to_bam(
+        assembly_align=aligned_to_assembly, sample_name=sample_name
+    )
+    sorted_bam = sort_bam(unsorted_bam=aligned_bam, sample_name=sample_name)
     depth_file = summarize_contig_depths(
-        assembly_bam=aligned_to_assembly, sample_name=sample_name
+        assembly_bam=sorted_bam, sample_name=sample_name
     )
 
     # Binning
@@ -233,7 +248,7 @@ def maggie(
 
 
 LaunchPlan(
-    maggie,  # workflow name
+    metamage,  # workflow name
     "Example Metagenome (Crohn's disease gut microbiome)",  # name of test data
     {
         "read1": LatchFile("latch:///Crohn/SRR579292_1.fastq"),

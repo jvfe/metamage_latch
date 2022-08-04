@@ -1,17 +1,17 @@
 from latch.types import LatchAuthor, LatchMetadata, LatchParameter
 
-MAGGIE_DOCS = LatchMetadata(
-    display_name="maggie",
-    documentation="https://github.com/jvfe/maggie_latch/blob/main/README.md",
+metamage_DOCS = LatchMetadata(
+    display_name="metamage",
+    documentation="https://github.com/jvfe/metamage_latch/blob/main/README.md",
     author=LatchAuthor(
         name="jvfe",
         github="https://github.com/jvfe",
     ),
-    repository="https://github.com/jvfe/maggie_latch",
+    repository="https://github.com/jvfe/metamage_latch",
     license="MIT",
 )
 
-MAGGIE_DOCS.parameters = {
+metamage_DOCS.parameters = {
     "read1": LatchParameter(
         display_name="Read 1",
         description="Paired-end read 1 file.",

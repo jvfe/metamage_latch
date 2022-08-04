@@ -43,7 +43,7 @@ def fastp(
 
     subprocess.run(_fastp_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
+    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
 
 
 @cached_large_task(CACHE_VERSION)
@@ -68,7 +68,7 @@ def build_bowtie_index(
 
     subprocess.run(_bt_idx_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
+    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
 
 
 @cached_large_task(CACHE_VERSION)
@@ -101,4 +101,4 @@ def map_to_host(
 
     subprocess.run(_bt_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
+    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")

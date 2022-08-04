@@ -48,4 +48,4 @@ def prodigal(
 
     subprocess.run(_prodigal_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
+    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")

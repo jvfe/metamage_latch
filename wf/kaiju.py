@@ -45,7 +45,7 @@ def taxonomy_classification_task(
 
     subprocess.run(_kaiju_cmd)
 
-    return LatchFile(str(kaiju_out), f"latch:///maggie/{sample}/kaiju/{output_name}")
+    return LatchFile(str(kaiju_out), f"latch:///metamage/{sample}/kaiju/{output_name}")
 
 
 @small_task
@@ -79,7 +79,7 @@ def kaiju2table_task(
     subprocess.run(_kaiju2table_cmd)
 
     return LatchFile(
-        str(kaijutable_tsv), f"latch:///maggie/{sample}/kaiju/{output_name}"
+        str(kaijutable_tsv), f"latch:///metamage/{sample}/kaiju/{output_name}"
     )
 
 
@@ -109,7 +109,7 @@ def kaiju2krona_task(
 
     subprocess.run(_kaiju2krona_cmd)
 
-    return LatchFile(str(krona_txt), f"latch:///maggie/{sample}/kaiju/{output_name}")
+    return LatchFile(str(krona_txt), f"latch:///metamage/{sample}/kaiju/{output_name}")
 
 
 @small_task
@@ -122,4 +122,4 @@ def plot_krona_task(krona_txt: LatchFile, sample: str) -> LatchFile:
 
     subprocess.run(_kaiju2krona_cmd)
 
-    return LatchFile(str(krona_html), f"latch:///maggie/{sample}/kaiju/{output_name}")
+    return LatchFile(str(krona_html), f"latch:///metamage/{sample}/kaiju/{output_name}")

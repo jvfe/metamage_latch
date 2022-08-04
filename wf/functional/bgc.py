@@ -29,4 +29,4 @@ def gecco(assembly_dir: LatchDir, sample_name: str) -> LatchDir:
 
     subprocess.run(_gecco_cmd)
 
-    return LatchDir(str(outdir), f"latch:///maggie/{sample_name}/{output_dir_name}")
+    return LatchDir(str(outdir), f"latch:///metamage/{sample_name}/{output_dir_name}")

@@ -1,6 +1,6 @@
-# maggie
+# metamage
 
-maggie is a workflow for taxonomic classification, assembly, binning
+metamage is a workflow for taxonomic classification, assembly, binning
 and annotation of long-read metagenomics datasets. It's composed of:
 
 - MEGAHIT for assembly
@@ -12,7 +12,7 @@ and annotation of long-read metagenomics datasets. It's composed of:
 - Prodigal for protein-coding gene prediction on assembly data.
 
 In the next sections, you can read brief descriptions of
-all subworkflows contained within maggie.
+all subworkflows contained within metamage.
 
 ---
 

@@ -25,7 +25,7 @@ def bowtie_assembly_build(assembly_dir: LatchDir, sample_name: str) -> LatchDir:
 
     subprocess.run(_bt_idx_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/{output_dir_name}")
+    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
 
 
 @large_task
@@ -39,7 +39,7 @@ def bowtie_assembly_align(
     read1 = Path(read_dir.local_path, f"{sample_name}_unaligned.fastq.1.gz")
     read2 = Path(read_dir.local_path, f"{sample_name}_unaligned.fastq.2.gz")
 
-    output_file_name = f"{sample_name}_assembly_mapped.bam"
+    output_file_name = f"{sample_name}_assembly_mapped.sam"
     output_file = Path(output_file_name).resolve()
 
     _bt_cmd = [
@@ -52,25 +52,61 @@ def bowtie_assembly_align(
         str(read2),
         "--threads",
         "31",
-        "|",
+        "-S",
+        output_file_name,
+    ]
+
+    subprocess.run(_bt_cmd)
+
+    return LatchFile(
+        str(output_file), f"latch:///metamage/{sample_name}/{output_file_name}"
+    )
+
+
+@small_task
+def convert_to_bam(assembly_align: LatchFile, sample_name: str) -> LatchFile:
+
+    output_file_name = f"{sample_name}_assembly_unsorted.bam"
+    output_file = Path(output_file_name).resolve()
+
+    _sam_convert_cmd = [
         "samtools",
         "view",
         "-@",
-        "31",
+        "4",
         "-bS",
-        "|",
-        "samtools",
-        "sort",
-        "-@",
-        "31",
+        assembly_align.local_path,
         "-o",
         output_file_name,
     ]
 
-    subprocess.run(_bt_cmd, shell=True)
+    subprocess.run(_sam_convert_cmd)
 
     return LatchFile(
-        str(output_file), f"latch:///maggie/{sample_name}/{output_file_name}"
+        str(output_file), f"latch:///metamage/{sample_name}/{output_file_name}"
+    )
+
+
+@small_task
+def sort_bam(unsorted_bam: LatchFile, sample_name: str) -> LatchFile:
+
+    output_file_name = f"{sample_name}_assembly_sorted.bam"
+    output_file = Path(output_file_name).resolve()
+
+    _sam_convert_cmd = [
+        "samtools",
+        "sort",
+        unsorted_bam.local_path,
+        "-@",
+        "4",
+        "-o",
+        output_file_name,
+    ]
+
+    subprocess.run(_sam_convert_cmd)
+
+    return LatchFile(
+        str(output_file), f"latch:///metamage/{sample_name}/{output_file_name}"
     )
 
 
@@ -89,7 +125,7 @@ def summarize_contig_depths(assembly_bam: LatchFile, sample_name: str) -> LatchF
 
     subprocess.run(_jgi_cmd)
 
-    return LatchFile(str(output_file), f"latch:///maggie/{sample_name}/{output_file}")
+    return LatchFile(str(output_file), f"latch:///metamage/{sample_name}/{output_file}")
 
 
 @large_task
@@ -118,4 +154,4 @@ def metabat2(
 
     subprocess.run(_metabat_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///maggie/{sample_name}/METABAT/")
+    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/METABAT/")
