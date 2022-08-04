@@ -46,8 +46,8 @@ def fastp(
     return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
 
 
-@cached_large_task(CACHE_VERSION)
-# @large_task
+# @cached_large_task(CACHE_VERSION)
+@large_task
 def build_bowtie_index(
     host_genome: LatchFile, sample_name: str, host_name: str
 ) -> LatchDir:
@@ -71,8 +71,8 @@ def build_bowtie_index(
     return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
 
 
-@cached_large_task(CACHE_VERSION)
-# @large_task
+# @cached_large_task(CACHE_VERSION)
+@large_task
 def map_to_host(
     host_idx: LatchDir,
     read_dir: LatchDir,
