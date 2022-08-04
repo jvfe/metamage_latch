@@ -251,13 +251,17 @@ LaunchPlan(
     metamage,  # workflow name
     "Example Metagenome (Crohn's disease gut microbiome)",  # name of test data
     {
-        "read1": LatchFile("latch:///Crohn/SRR579292_1.fastq"),
-        "read2": LatchFile("latch:///Crohn/SRR579292_2.fastq"),
-        "host_genome": LatchFile("latch:///ref_genome/Homo_sapiens.fa.gz"),
+        "read1": LatchFile("s3://latch-public/test-data/4318/SRR579292_1.fastq"),
+        "read2": LatchFile("s3://latch-public/test-data/4318/SRR579292_2.fastq"),
+        "host_genome": LatchFile(
+            "s3://latch-public/test-data/4318/Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz"
+        ),
         "host_name": "homo_sapiens",
-        "kaiju_ref_db": LatchFile("latch:///kaiju_idx/kaiju_db_viruses.fmi"),
-        "kaiju_ref_nodes": LatchFile("latch:///kaiju_idx/nodes.dmp"),
-        "kaiju_ref_names": LatchFile("latch:///kaiju_idx/names.dmp"),
+        "kaiju_ref_db": LatchFile(
+            "s3://latch-public/test-data/4318/kaiju_db_plasmids.fmi"
+        ),
+        "kaiju_ref_nodes": LatchFile("s3://latch-public/test-data/4318/nodes.dmp"),
+        "kaiju_ref_names": LatchFile("s3://latch-public/test-data/4318/names.dmp"),
         "sample_name": "crohn_data1",
         "taxon_rank": TaxonRank.species,
         "min_count": "2",
