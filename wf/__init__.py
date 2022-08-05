@@ -54,6 +54,9 @@ def metamage(
 
     metamage is a workflow for taxonomic classification, assembly, binning
     and annotation of short-read host-associated metagenomics datasets.
+
+    ![MetaMage Graph](https://i.imgur.com/Fo464EY.png)
+
     It's composed of:
 
     ## Read pre-processing and host read removal

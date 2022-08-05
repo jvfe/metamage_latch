@@ -2,6 +2,20 @@
 
 metamage is a workflow for taxonomic classification, assembly, binning
 and annotation of short-read host-associated metagenomics datasets.
+
+```mermaid
+    graph TD;
+        reads[(Short-read paired-end metagenomics data)]-->hostread(Trimming and host read removal)
+        hostread-->|Reads| tax(Taxonomic classification with Kaiju)
+        hostread-->|Reads| assem(Assembly with MEGAHIT)
+        assem-.->|Assembled contigs| metaq(MetaQuast evaluation)
+        assem-->|Assembled contigs| func(Functional annotation)
+        assem-->|Assembled contigs| binprep(Binning preparation)
+        hostread-->|Reads| binprep
+        assem-->|Assembled contigs| bin(Binning with MetaBAT2)
+        binprep-->|Depth file| bin
+```
+
 It's composed of:
 
 ## Read pre-processing and host read removal
