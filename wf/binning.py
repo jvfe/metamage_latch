@@ -59,7 +59,6 @@ def bowtie_assembly_align(
 
     bt_align_out = subprocess.Popen(
         _bt_cmd,
-        check=True,
         stdout=subprocess.PIPE,
     )
 
@@ -72,7 +71,7 @@ def bowtie_assembly_align(
     ]
 
     sam_convert_out = subprocess.Popen(
-        _sam_convert_cmd, check=True, stdin=bt_align_out.stdout, stdout=subprocess.PIPE
+        _sam_convert_cmd, stdin=bt_align_out.stdout, stdout=subprocess.PIPE
     )
 
     _sam_sort_cmd = [
@@ -86,7 +85,6 @@ def bowtie_assembly_align(
 
     subprocess.run(
         _sam_sort_cmd,
-        check=True,
         stdin=sam_convert_out.stdout,
     )
 
