@@ -7,9 +7,7 @@ from latch.types import LatchDir, LatchFile
 from .binning import (
     bowtie_assembly_align,
     bowtie_assembly_build,
-    convert_to_bam,
     metabat2,
-    sort_bam,
     summarize_contig_depths,
 )
 from .docs import metamage_DOCS
@@ -211,12 +209,8 @@ def metamage(
     aligned_to_assembly = bowtie_assembly_align(
         assembly_idx=built_assembly_idx, read_dir=unaligned, sample_name=sample_name
     )
-    aligned_bam = convert_to_bam(
-        assembly_align=aligned_to_assembly, sample_name=sample_name
-    )
-    sorted_bam = sort_bam(unsorted_bam=aligned_bam, sample_name=sample_name)
     depth_file = summarize_contig_depths(
-        assembly_bam=sorted_bam, sample_name=sample_name
+        assembly_bam=aligned_to_assembly, sample_name=sample_name
     )
 
     # Binning
@@ -263,7 +257,7 @@ LaunchPlan(
         ),
         "kaiju_ref_nodes": LatchFile("s3://latch-public/test-data/4318/nodes.dmp"),
         "kaiju_ref_names": LatchFile("s3://latch-public/test-data/4318/names.dmp"),
-        "sample_name": "crohn_data1",
+        "sample_name": "SRR579292",
         "taxon_rank": TaxonRank.species,
         "min_count": "2",
         "k_min": "21",
