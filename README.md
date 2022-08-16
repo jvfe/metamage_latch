@@ -55,7 +55,25 @@ It's composed of:
 - [KronaTools](https://github.com/marbl/Krona/wiki/KronaTools) for
   visualizing taxonomic classification results
 
-## Where to get the data?
+# Output tree
+
+- |metamage
+  - |{sample_name}
+    - |{sample_name}\_bt_idx - Host genome BowTie index
+    - |{sample_name}\_bt_unaligned - Reads that didn't align to the host genome
+    - |fastp_results - Results from trimming with fastp
+    - |kaiju
+    - |MEGAHIT
+    - |MetaQuast - Assembly evaluation report
+    - |{sample_name}\_assembly_idx - BowTie Index from assembly data
+    - |{sample_name}\_assembly_sorted.bam - Reads aligned to assembly contigs
+    - |METABAT
+    - |fargene_results
+    - |gecco_results
+    - |macrel_results
+    - |prodigal_results
+
+# Where to get the data?
 
 - Kaiju indexes can be generated based on a reference database but
   you can also find some pre-built ones in the sidebar of the

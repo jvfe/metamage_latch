@@ -13,11 +13,11 @@ from latch.types import LatchDir
 def megahit(
     read_dir: LatchDir,
     sample_name: str,
-    min_count: str,
-    k_min: str,
-    k_max: str,
-    k_step: str,
-    min_contig_len: str,
+    min_count: int,
+    k_min: int,
+    k_max: int,
+    k_step: int,
+    min_contig_len: int,
 ) -> LatchDir:
 
     # Read files
@@ -30,19 +30,19 @@ def megahit(
     _megahit_cmd = [
         "/root/megahit",
         "--min-count",
-        min_count,
+        str(min_count),
         "--k-min",
-        k_min,
+        str(k_min),
         "--k-max",
-        k_max,
+        str(k_max),
         "--k-step",
-        k_step,
+        str(k_step),
         "--out-dir",
         output_dir_name,
         "--out-prefix",
         sample_name,
         "--min-contig-len",
-        min_contig_len,
+        str(min_contig_len),
         "-1",
         str(read1),
         "-2",
@@ -51,7 +51,9 @@ def megahit(
 
     subprocess.run(_megahit_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
+    return LatchDir(
+        str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
+    )
 
 
 @small_task
@@ -81,4 +83,6 @@ def metaquast(
 
     subprocess.run(_metaquast_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
+    return LatchDir(
+        str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
+    )

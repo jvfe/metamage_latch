@@ -37,11 +37,11 @@ def metamage(
     host_name: str = "host",
     sample_name: str = "metamage_sample",
     taxon_rank: TaxonRank = TaxonRank.species,
-    min_count: str = "2",
-    k_min: str = "21",
-    k_max: str = "141",
-    k_step: str = "12",
-    min_contig_len: str = "200",
+    min_count: int = 2,
+    k_min: int = 21,
+    k_max: int = 141,
+    k_step: int = 12,
+    min_contig_len: int = 200,
     prodigal_output_format: ProdigalOutput = ProdigalOutput.gbk,
     fargene_hmm_model: fARGeneModel = fARGeneModel.class_a,
 ) -> List[Union[LatchFile, LatchDir]]:
@@ -94,7 +94,25 @@ def metamage(
     - [KronaTools](https://github.com/marbl/Krona/wiki/KronaTools) for
       visualizing taxonomic classification results
 
-    ## Where to get the data?
+    # Output tree
+
+    - |metamage
+      - |{sample_name}
+        - |{sample_name}_bt_idx - Host genome BowTie index
+        - |{sample_name}_bt_unaligned - Reads that didn't align to the host genome
+        - |fastp_results - Results from trimming with fastp
+        - |kaiju
+        - |MEGAHIT
+        - |MetaQuast - Assembly evaluation report
+        - |{sample_name}_assembly_idx - BowTie Index from assembly data
+        - |{sample_name}_assembly_sorted.bam - Reads aligned to assembly contigs
+        - |METABAT
+        - |fargene_results
+        - |gecco_results
+        - |macrel_results
+        - |prodigal_results
+
+    # Where to get the data?
 
     - Kaiju indexes can be generated based on a reference database but
       you can also find some pre-built ones in the sidebar of the
@@ -259,11 +277,11 @@ LaunchPlan(
         "kaiju_ref_names": LatchFile("s3://latch-public/test-data/4318/names.dmp"),
         "sample_name": "SRR579292",
         "taxon_rank": TaxonRank.species,
-        "min_count": "2",
-        "k_min": "21",
-        "k_max": "141",
-        "k_step": "12",
-        "min_contig_len": "200",
+        "min_count": 2,
+        "k_min": 21,
+        "k_max": 141,
+        "k_step": 12,
+        "min_contig_len": 200,
         "prodigal_output_format": ProdigalOutput.gff,
         "fargene_hmm_model": fARGeneModel.class_b_1_2,
     },
