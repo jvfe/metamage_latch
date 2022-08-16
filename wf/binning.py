@@ -108,7 +108,7 @@ def summarize_contig_depths(assembly_bam: LatchFile, sample_name: str) -> LatchF
 
     subprocess.run(_jgi_cmd)
 
-    return LatchFile(str(output_file), f"latch:///metamage/{sample_name}/{output_file}")
+    return LatchFile(str(output_file), f"latch:///metamage/{sample_name}/{output_file_name}")
 
 
 @large_task
