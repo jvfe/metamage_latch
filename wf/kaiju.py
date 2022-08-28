@@ -4,8 +4,9 @@ Taxonomic classification of reads
 
 import subprocess
 from pathlib import Path
+from typing import Tuple
 
-from latch import large_task, small_task
+from latch import large_task, small_task, workflow
 from latch.types import LatchDir, LatchFile
 
 from .types import TaxonRank
@@ -123,3 +124,37 @@ def plot_krona_task(krona_txt: LatchFile, sample: str) -> LatchFile:
     subprocess.run(_kaiju2krona_cmd)
 
     return LatchFile(str(krona_html), f"latch:///metamage/{sample}/kaiju/{output_name}")
+
+
+@workflow
+def kaiju_wf(
+    read_dir: LatchDir,
+    kaiju_ref_db: LatchFile,
+    kaiju_ref_nodes: LatchFile,
+    kaiju_ref_names: LatchFile,
+    sample_name: str = "metamage_sample",
+    taxon_rank: TaxonRank = TaxonRank.species,
+) -> Tuple[LatchFile]:
+
+    kaiju_out = taxonomy_classification_task(
+        read_dir=read_dir,
+        kaiju_ref_db=kaiju_ref_db,
+        kaiju_ref_nodes=kaiju_ref_nodes,
+        sample=sample_name,
+    )
+    kaiju2table_out = kaiju2table_task(
+        kaiju_out=kaiju_out,
+        sample=sample_name,
+        kaiju_ref_nodes=kaiju_ref_nodes,
+        kaiju_ref_names=kaiju_ref_names,
+        taxon=taxon_rank,
+    )
+    kaiju2krona_out = kaiju2krona_task(
+        kaiju_out=kaiju_out,
+        sample=sample_name,
+        kaiju_ref_nodes=kaiju_ref_nodes,
+        kaiju_ref_names=kaiju_ref_names,
+    )
+    krona_plot = plot_krona_task(krona_txt=kaiju2krona_out, sample=sample_name)
+
+    return kaiju2table_out, krona_plot

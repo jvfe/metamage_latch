@@ -16,12 +16,7 @@ from .functional.arg import fargene
 from .functional.bgc import gecco
 from .functional.prodigal import prodigal
 from .host_removal import build_bowtie_index, fastp, map_to_host
-from .kaiju import (
-    kaiju2krona_task,
-    kaiju2table_task,
-    plot_krona_task,
-    taxonomy_classification_task,
-)
+from .kaiju import kaiju_wf
 from .metassembly import megahit, metaquast
 from .types import ProdigalOutput, TaxonRank, fARGeneModel
 
@@ -187,26 +182,14 @@ def metamage(
     )
 
     # Kaiju taxonomic classification
-    kaiju_out = taxonomy_classification_task(
+    kaiju2table, krona_plot = kaiju_wf(
         read_dir=unaligned,
         kaiju_ref_db=kaiju_ref_db,
         kaiju_ref_nodes=kaiju_ref_nodes,
-        sample=sample_name,
-    )
-    kaiju2table_out = kaiju2table_task(
-        kaiju_out=kaiju_out,
-        sample=sample_name,
-        kaiju_ref_nodes=kaiju_ref_nodes,
         kaiju_ref_names=kaiju_ref_names,
-        taxon=taxon_rank,
+        sample_name=sample_name,
+        taxon_rank=taxon_rank,
     )
-    kaiju2krona_out = kaiju2krona_task(
-        kaiju_out=kaiju_out,
-        sample=sample_name,
-        kaiju_ref_nodes=kaiju_ref_nodes,
-        kaiju_ref_names=kaiju_ref_names,
-    )
-    krona_plot = plot_krona_task(krona_txt=kaiju2krona_out, sample=sample_name)
 
     # Assembly
     assembly_dir = megahit(
@@ -249,7 +232,7 @@ def metamage(
     gecco_results = gecco(assembly_dir=assembly_dir, sample_name=sample_name)
 
     return [
-        kaiju2table_out,
+        kaiju2table,
         krona_plot,
         metassembly_results,
         binning_results,
