@@ -4,12 +4,7 @@ from latch import workflow
 from latch.resources.launch_plan import LaunchPlan
 from latch.types import LatchDir, LatchFile
 
-from .binning import (
-    bowtie_assembly_align,
-    bowtie_assembly_build,
-    metabat2,
-    summarize_contig_depths,
-)
+from .binning import binning_wf
 from .docs import metamage_DOCS
 from .functional.amp import macrel
 from .functional.arg import fargene
@@ -196,20 +191,9 @@ def metamage(
         min_contig_len=min_contig_len,
     )
 
-    # Binning preparation
-    built_assembly_idx = bowtie_assembly_build(
-        assembly_dir=assembly_dir, sample_name=sample_name
-    )
-    aligned_to_assembly = bowtie_assembly_align(
-        assembly_idx=built_assembly_idx, read_dir=unaligned, sample_name=sample_name
-    )
-    depth_file = summarize_contig_depths(
-        assembly_bam=aligned_to_assembly, sample_name=sample_name
-    )
-
     # Binning
-    binning_results = metabat2(
-        assembly_dir=assembly_dir, depth_file=depth_file, sample_name=sample_name
+    binning_results = binning_wf(
+        read_dir=unaligned, assembly_dir=assembly_dir, sample_name=sample_name
     )
 
     # Functional annotation

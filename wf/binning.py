@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from latch import large_task, small_task
+from latch import large_task, small_task, workflow
 from latch.types import LatchDir, LatchFile
 
 
@@ -108,7 +108,9 @@ def summarize_contig_depths(assembly_bam: LatchFile, sample_name: str) -> LatchF
 
     subprocess.run(_jgi_cmd)
 
-    return LatchFile(str(output_file), f"latch:///metamage/{sample_name}/{output_file_name}")
+    return LatchFile(
+        str(output_file), f"latch:///metamage/{sample_name}/{output_file_name}"
+    )
 
 
 @large_task
@@ -138,3 +140,27 @@ def metabat2(
     subprocess.run(_metabat_cmd)
 
     return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/METABAT/")
+
+
+@workflow
+def binning_wf(
+    read_dir: LatchDir, assembly_dir: LatchDir, sample_name: str
+) -> LatchDir:
+
+    # Binning preparation
+    built_assembly_idx = bowtie_assembly_build(
+        assembly_dir=assembly_dir, sample_name=sample_name
+    )
+    aligned_to_assembly = bowtie_assembly_align(
+        assembly_idx=built_assembly_idx, read_dir=read_dir, sample_name=sample_name
+    )
+    depth_file = summarize_contig_depths(
+        assembly_bam=aligned_to_assembly, sample_name=sample_name
+    )
+
+    # Binning
+    binning_results = metabat2(
+        assembly_dir=assembly_dir, depth_file=depth_file, sample_name=sample_name
+    )
+
+    return binning_results
