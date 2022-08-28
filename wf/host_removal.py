@@ -116,8 +116,8 @@ def host_removal_wf(
     read1: LatchFile,
     read2: LatchFile,
     host_genome: LatchFile,
-    host_name: str = "host",
-    sample_name: str = "metamage_sample",
+    host_name: str,
+    sample_name: str,
 ) -> LatchDir:
 
     # Preprocessing

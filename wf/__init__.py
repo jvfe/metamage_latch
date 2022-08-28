@@ -17,7 +17,7 @@ from .functional.bgc import gecco
 from .functional.prodigal import prodigal
 from .host_removal import host_removal_wf
 from .kaiju import kaiju_wf
-from .metassembly import megahit, metaquast
+from .metassembly import assembly_wf
 from .types import ProdigalOutput, TaxonRank, fARGeneModel
 
 
@@ -186,8 +186,7 @@ def metamage(
         taxon_rank=taxon_rank,
     )
 
-    # Assembly
-    assembly_dir = megahit(
+    assembly_dir, metassembly_results = assembly_wf(
         read_dir=unaligned,
         sample_name=sample_name,
         min_count=min_count,
@@ -196,7 +195,6 @@ def metamage(
         k_step=k_step,
         min_contig_len=min_contig_len,
     )
-    metassembly_results = metaquast(assembly_dir=assembly_dir, sample_name=sample_name)
 
     # Binning preparation
     built_assembly_idx = bowtie_assembly_build(

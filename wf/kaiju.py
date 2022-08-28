@@ -132,9 +132,9 @@ def kaiju_wf(
     kaiju_ref_db: LatchFile,
     kaiju_ref_nodes: LatchFile,
     kaiju_ref_names: LatchFile,
-    sample_name: str = "metamage_sample",
-    taxon_rank: TaxonRank = TaxonRank.species,
-) -> Tuple[LatchFile]:
+    sample_name: str,
+    taxon_rank: TaxonRank,
+) -> Tuple[LatchFile, LatchFile]:
 
     kaiju_out = taxonomy_classification_task(
         read_dir=read_dir,

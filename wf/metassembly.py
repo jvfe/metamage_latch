@@ -4,8 +4,9 @@ Read assembly and evaluation for metagenomics data
 
 import subprocess
 from pathlib import Path
+from typing import Tuple
 
-from latch import large_task, small_task
+from latch import large_task, small_task, workflow
 from latch.types import LatchDir
 
 
@@ -86,3 +87,29 @@ def metaquast(
     return LatchDir(
         str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
     )
+
+
+@workflow
+def assembly_wf(
+    read_dir: LatchDir,
+    sample_name: str,
+    min_count: int,
+    k_min: int,
+    k_max: int,
+    k_step: int,
+    min_contig_len: int,
+) -> Tuple[LatchDir, LatchDir]:
+
+    # Assembly
+    assembly_dir = megahit(
+        read_dir=read_dir,
+        sample_name=sample_name,
+        min_count=min_count,
+        k_min=k_min,
+        k_max=k_max,
+        k_step=k_step,
+        min_contig_len=min_contig_len,
+    )
+    metassembly_results = metaquast(assembly_dir=assembly_dir, sample_name=sample_name)
+
+    return assembly_dir, metassembly_results
