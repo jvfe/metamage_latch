@@ -6,10 +6,7 @@ from latch.types import LatchDir, LatchFile
 
 from .binning import binning_wf
 from .docs import metamage_DOCS
-from .functional.amp import macrel
-from .functional.arg import fargene
-from .functional.bgc import gecco
-from .functional.prodigal import prodigal
+from .functional import functional_wf
 from .host_removal import host_removal_wf
 from .kaiju import kaiju_wf
 from .metassembly import assembly_wf
@@ -196,17 +193,12 @@ def metamage(
         read_dir=unaligned, assembly_dir=assembly_dir, sample_name=sample_name
     )
 
-    # Functional annotation
-    prodigal_results = prodigal(
+    prodigal_results, macrel_results, fargene_results, gecco_results = functional_wf(
         assembly_dir=assembly_dir,
         sample_name=sample_name,
-        output_format=prodigal_output_format,
+        prodigal_output_format=prodigal_output_format,
+        fargene_hmm_model=fargene_hmm_model,
     )
-    macrel_results = macrel(assembly_dir=assembly_dir, sample_name=sample_name)
-    fargene_results = fargene(
-        assembly_dir=assembly_dir, sample_name=sample_name, hmm_model=fargene_hmm_model
-    )
-    gecco_results = gecco(assembly_dir=assembly_dir, sample_name=sample_name)
 
     return [
         kaiju2table,

@@ -176,3 +176,4 @@ cython_debug/
 #.idea/
 
 .latch_report.tar.gz
+.logs/
