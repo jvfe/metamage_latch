@@ -1,7 +1,8 @@
 import subprocess
 from pathlib import Path
+from typing import Tuple
 
-from latch import large_task, small_task
+from latch import large_task, small_task, workflow
 from latch.resources.tasks import cached_large_task
 from latch.types import LatchDir, LatchFile
 
@@ -43,7 +44,9 @@ def fastp(
 
     subprocess.run(_fastp_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
+    return LatchDir(
+        str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
+    )
 
 
 # @cached_large_task(CACHE_VERSION)
@@ -68,7 +71,9 @@ def build_bowtie_index(
 
     subprocess.run(_bt_idx_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
+    return LatchDir(
+        str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
+    )
 
 
 # @cached_large_task(CACHE_VERSION)
@@ -101,4 +106,33 @@ def map_to_host(
 
     subprocess.run(_bt_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
+    return LatchDir(
+        str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
+    )
+
+
+@workflow
+def host_removal_wf(
+    read1: LatchFile,
+    read2: LatchFile,
+    host_genome: LatchFile,
+    host_name: str = "host",
+    sample_name: str = "metamage_sample",
+) -> LatchDir:
+
+    # Preprocessing
+    trimmed_data = fastp(read1=read1, read2=read2, sample_name=sample_name)
+
+    # Host read removal
+    host_idx = build_bowtie_index(
+        host_genome=host_genome, sample_name=sample_name, host_name=host_name
+    )
+
+    unaligned = map_to_host(
+        host_idx=host_idx,
+        read_dir=trimmed_data,
+        sample_name=sample_name,
+        host_name=host_name,
+    )
+
+    return unaligned

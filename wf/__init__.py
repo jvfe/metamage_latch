@@ -15,7 +15,7 @@ from .functional.amp import macrel
 from .functional.arg import fargene
 from .functional.bgc import gecco
 from .functional.prodigal import prodigal
-from .host_removal import build_bowtie_index, fastp, map_to_host
+from .host_removal import host_removal_wf
 from .kaiju import kaiju_wf
 from .metassembly import megahit, metaquast
 from .types import ProdigalOutput, TaxonRank, fARGeneModel
@@ -166,19 +166,14 @@ def metamage(
     GigaScience, Volume 10, Issue 2, February 2021, giab008,
     https://doi.org/10.1093/gigascience/giab008
     """
-    # Preprocessing
-    trimmed_data = fastp(read1=read1, read2=read2, sample_name=sample_name)
 
-    # Host read removal
-    host_idx = build_bowtie_index(
-        host_genome=host_genome, sample_name=sample_name, host_name=host_name
-    )
-
-    unaligned = map_to_host(
-        host_idx=host_idx,
-        read_dir=trimmed_data,
-        sample_name=sample_name,
+    # Host read removal and trimming
+    unaligned = host_removal_wf(
+        read1=read1,
+        read2=read2,
+        host_genome=host_genome,
         host_name=host_name,
+        sample_name=sample_name,
     )
 
     # Kaiju taxonomic classification
