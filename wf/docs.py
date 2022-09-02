@@ -1,7 +1,7 @@
 from latch.types import LatchAuthor, LatchMetadata, LatchParameter
 
 metamage_DOCS = LatchMetadata(
-    display_name="metamage",
+    display_name="MetaMage",
     documentation="https://github.com/jvfe/metamage_latch/blob/main/README.md",
     author=LatchAuthor(
         name="jvfe",
