@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Tuple
 
-from latch import large_task, small_task, workflow
+from latch import large_task, message, small_task, workflow
 from latch.types import LatchDir, LatchFile
 
 from .types import TaxonRank
@@ -43,7 +43,13 @@ def taxonomy_classification_task(
         "-o",
         str(kaiju_out),
     ]
-
+    message(
+        "info",
+        {
+            "title": "Taxonomically classifying reads with Kaiju",
+            "body": f"Command: {' '.join(_kaiju_cmd)}",
+        },
+    )
     subprocess.run(_kaiju_cmd)
 
     return LatchFile(str(kaiju_out), f"latch:///metamage/{sample}/kaiju/{output_name}")

@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from latch import large_task, small_task, workflow
+from latch import large_task, message, small_task, workflow
 from latch.types import LatchDir, LatchFile
 
 
@@ -136,7 +136,13 @@ def metabat2(
         "-o",
         output_dir_name,
     ]
-
+    message(
+        "info",
+        {
+            "title": "Binning contigs with MetaBat2",
+            "body": f"Command: {' '.join(_metabat_cmd)}",
+        },
+    )
     subprocess.run(_metabat_cmd)
 
     return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/METABAT/")

@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from latch import small_task
+from latch import message, small_task
 from latch.types import LatchDir
 
 
@@ -26,7 +26,13 @@ def gecco(assembly_dir: LatchDir, sample_name: str) -> LatchDir:
         "4",
         "--force-tsv",
     ]
-
+    message(
+        "info",
+        {
+            "title": "Detecting bacterial gene clusters in contigs with Gecco",
+            "body": f"Command: {' '.join(_gecco_cmd)}",
+        },
+    )
     subprocess.run(_gecco_cmd)
 
     return LatchDir(str(outdir), f"latch:///metamage/{sample_name}/{output_dir_name}")

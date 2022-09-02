@@ -5,7 +5,7 @@ Predict protein-coding genes with prodigal
 import subprocess
 from pathlib import Path
 
-from latch import large_task
+from latch import large_task, message
 from latch.types import LatchDir
 
 from ..types import ProdigalOutput
@@ -45,7 +45,15 @@ def prodigal(
         "-s",
         str(output_scores),
     ]
-
+    message(
+        "info",
+        {
+            "title": "Predicting protein-coding genes in contigs with Prodigal",
+            "body": f"Command: {' '.join(_prodigal_cmd)}",
+        },
+    )
     subprocess.run(_prodigal_cmd)
 
-    return LatchDir(str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}")
+    return LatchDir(
+        str(output_dir), f"latch:///metamage/{sample_name}/{output_dir_name}"
+    )

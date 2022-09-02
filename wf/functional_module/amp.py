@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from latch import small_task
+from latch import message, small_task
 from latch.types import LatchDir
 
 
@@ -29,7 +29,13 @@ def macrel(assembly_dir: LatchDir, sample_name: str) -> LatchDir:
         "--threads",
         "8",
     ]
-
+    message(
+        "info",
+        {
+            "title": "Detecting anti-microbial peptides in contigs with Macrel",
+            "body": f"Command: {' '.join(_macrel_cmd)}",
+        },
+    )
     subprocess.run(_macrel_cmd)
 
     return LatchDir(str(outdir), f"latch:///metamage/{sample_name}/{output_dir_name}")

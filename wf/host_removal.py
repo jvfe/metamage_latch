@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 from typing import Tuple
 
-from latch import large_task, small_task, workflow
+from latch import large_task, message, small_task, workflow
 from latch.resources.tasks import cached_large_task
 from latch.types import LatchDir, LatchFile
 
@@ -41,7 +41,13 @@ def fastp(
         "4",
         "--detect_adapter_for_pe",
     ]
-
+    message(
+        "info",
+        {
+            "title": "Running fastp to remove low-quality reads",
+            "body": f"Command: {' '.join(_fastp_cmd)}",
+        },
+    )
     subprocess.run(_fastp_cmd)
 
     return LatchDir(
@@ -68,7 +74,13 @@ def build_bowtie_index(
         "--threads",
         "31",
     ]
-
+    message(
+        "info",
+        {
+            "title": "Building bowtie2 index for the host genome",
+            "body": f"Command: {' '.join(_bt_idx_cmd)}",
+        },
+    )
     subprocess.run(_bt_idx_cmd)
 
     return LatchDir(
@@ -103,7 +115,13 @@ def map_to_host(
         "--threads",
         "31",
     ]
-
+    message(
+        "info",
+        {
+            "title": "Aligning to host genome",
+            "body": f"Command: {' '.join(_bt_cmd)}",
+        },
+    )
     subprocess.run(_bt_cmd)
 
     return LatchDir(

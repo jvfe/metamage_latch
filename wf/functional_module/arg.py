@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from latch import small_task
+from latch import message, small_task
 from latch.types import LatchDir
 
 from ..types import fARGeneModel
@@ -30,7 +30,13 @@ def fargene(
         "-p",
         "8",
     ]
-
+    message(
+        "info",
+        {
+            "title": "Detecting antibiotic resistance genes in contigs with fARGene",
+            "body": f"Command: {' '.join(_fargene_cmd)}",
+        },
+    )
     subprocess.run(_fargene_cmd)
 
     return LatchDir(str(outdir), f"latch:///metamage/{sample_name}/{output_dir_name}")

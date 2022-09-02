@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Tuple
 
-from latch import large_task, small_task, workflow
+from latch import large_task, message, small_task, workflow
 from latch.types import LatchDir
 
 
@@ -49,7 +49,13 @@ def megahit(
         "-2",
         str(read2),
     ]
-
+    message(
+        "info",
+        {
+            "title": "Assembling reads into contigs with MEGAHit",
+            "body": f"Command: {' '.join(_megahit_cmd)}",
+        },
+    )
     subprocess.run(_megahit_cmd)
 
     return LatchDir(
@@ -81,7 +87,13 @@ def metaquast(
         output_dir_name,
         str(assembly_fasta),
     ]
-
+    message(
+        "info",
+        {
+            "title": "Evaluating assembly with MetaQuast",
+            "body": f"Command: {' '.join(_metaquast_cmd)}",
+        },
+    )
     subprocess.run(_metaquast_cmd)
 
     return LatchDir(
