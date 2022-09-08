@@ -9,6 +9,7 @@ metamage_DOCS = LatchMetadata(
     ),
     repository="https://github.com/jvfe/metamage_latch",
     license="MIT",
+    tags=["NGS", "metagenomics", "MAG", "taxonomy"],
 )
 
 metamage_DOCS.parameters = {
