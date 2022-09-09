@@ -10,18 +10,16 @@ from .functional import functional_wf
 from .host_removal import host_removal_wf
 from .kaiju import kaiju_wf
 from .metassembly import assembly_wf
-from .types import ProdigalOutput, TaxonRank, fARGeneModel
+from .types import HostData, ProdigalOutput, Sample, TaxonRank, fARGeneModel
 
 
 @workflow(metamage_DOCS)
 def metamage(
-    read1: LatchFile,
-    read2: LatchFile,
-    host_genome: LatchFile,
+    sample: Sample,
+    host_data: HostData,
     kaiju_ref_db: LatchFile,
     kaiju_ref_nodes: LatchFile,
     kaiju_ref_names: LatchFile,
-    host_name: str = "host",
     sample_name: str = "metamage_sample",
     taxon_rank: TaxonRank = TaxonRank.species,
     min_count: int = 2,
@@ -161,10 +159,8 @@ def metamage(
 
     # Host read removal and trimming
     unaligned = host_removal_wf(
-        read1=read1,
-        read2=read2,
-        host_genome=host_genome,
-        host_name=host_name,
+        sample=sample,
+        host_data=host_data,
         sample_name=sample_name,
     )
 
@@ -216,12 +212,16 @@ LaunchPlan(
     metamage,  # workflow name
     "Example Metagenome (Crohn's disease gut microbiome)",  # name of test data
     {
-        "read1": LatchFile("s3://latch-public/test-data/4318/SRR579292_1.fastq"),
-        "read2": LatchFile("s3://latch-public/test-data/4318/SRR579292_2.fastq"),
-        "host_genome": LatchFile(
-            "s3://latch-public/test-data/4318/Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz"
+        "sample": Sample(
+            read1=LatchFile("s3://latch-public/test-data/4318/SRR579292_1.fastq"),
+            read2=LatchFile("s3://latch-public/test-data/4318/SRR579292_2.fastq"),
         ),
-        "host_name": "homo_sapiens",
+        "host_data": HostData(
+            host_genome=LatchFile(
+                "s3://latch-public/test-data/4318/Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz"
+            ),
+            host_name="homo_sapiens",
+        ),
         "kaiju_ref_db": LatchFile(
             "s3://latch-public/test-data/4318/kaiju_db_plasmids.fmi"
         ),

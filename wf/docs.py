@@ -13,27 +13,21 @@ metamage_DOCS = LatchMetadata(
 )
 
 metamage_DOCS.parameters = {
-    "read1": LatchParameter(
-        display_name="Read 1",
-        description="Paired-end read 1 file.",
-        section_title="Data",
-    ),
-    "read2": LatchParameter(
-        display_name="Read 2",
-        description="Paired-end read 2 file.",
-    ),
     "sample_name": LatchParameter(
         display_name="Sample name",
         description="Sample name (will define output file names)",
+        batch_table_column=True,
+        section_title="Samples",
     ),
-    "host_genome": LatchParameter(
-        display_name="Host Genome",
-        description="FASTA file of the host genome",
+    "sample": LatchParameter(
+        display_name="Sample data",
+        description="Paired-end FASTQ files",
+        batch_table_column=True,
+    ),
+    "host_data": LatchParameter(
+        display_name="Host genome & Host name",
+        description="FASTA file of the host genome & Host name",
         section_title="Host data",
-    ),
-    "host_name": LatchParameter(
-        display_name="Host name",
-        description="Name of the host",
     ),
     "k_min": LatchParameter(
         display_name="Minimum kmer size",
